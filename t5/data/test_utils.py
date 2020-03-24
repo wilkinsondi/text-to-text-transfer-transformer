@@ -296,8 +296,13 @@ def get_fake_dataset(split, shuffle_files=False):
   if split == "validation":
     output_shapes.update({"idxs": [None], "ids": [None]})
 
+  def _example_gen(split):
+    for ex in _FAKE_DATASET[split]:
+      yield {k: tf.constant(v, dtype=output_types[k]) for k, v in ex.items()}
+
   return tf.data.Dataset.from_generator(
-      lambda: _FAKE_DATASET[split], output_types, output_shapes)
+      lambda: _example_gen(split),
+      output_types, output_shapes)
 
 
 def test_text_preprocessor(dataset):
